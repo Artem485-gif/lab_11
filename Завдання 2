@@ -1,0 +1,58 @@
+import pandas as pd
+import matplotlib.pyplot as plt
+
+# Завантаження даних з csv файлу
+filename = r"C:\Users\Admin\PycharmProjects\PythonProject\comptagevelo2009.csv"
+df = pd.read_csv(filename)
+
+df['Date'] = pd.to_datetime(df['Date'], dayfirst=True)
+df.set_index('Date', inplace=True)
+
+if 'Unnamed: 1' in df.columns:
+    df.drop(columns=['Unnamed: 1'], inplace=True)
+
+# Виведення меню для вибору велодоріжки
+columns = list(df.columns)
+
+print("Доступні велодоріжки:")
+for i, col in enumerate(columns, 1):
+    print(f"{i}. {col}")
+
+# Вибір велодоріжки
+choice = input("\nВведіть номер велодоріжки: ")
+
+# Перевірка правильності введення
+while not choice.isdigit() or not (1 <= int(choice) <= len(columns)):
+    print("Спробуйте ще раз!")
+    choice = input("Введіть номер велодоріжки: ")
+
+choice = int(choice)
+track = columns[choice - 1]
+
+print(f"\nВи вибрали: {track}")
+
+# Статистика обраної велодоріжки
+print(f"\nЗагальна статистика для '{track}'")
+print(df[track].describe())
+
+# Максимальне значення
+max_date = df[track].idxmax()
+max_count = df[track].max()
+print(f"\nМаксимальна кількість на {track}: {max_count} (дата: {max_date.date()})")
+
+# Топ три найпопулярніші велодоріжки
+total_trips = df.sum().sort_values(ascending=False)
+print("\nТоп три найпопулярніші велодоріжки за 2009 рік")
+print(total_trips.head(3))
+
+# Побудова графіку
+plt.figure(figsize=(12, 6))
+df[track].plot(label=track)
+plt.title(f'Динаміка руху велосипедистів по велодоріжці {track} (2009 рік)')
+plt.xlabel('Дата')
+plt.ylabel('Кількість велосипедистів')
+plt.legend()
+plt.grid(True)
+
+plt.savefig(f'bike_plot_{track}_2009.png')
+plt.show()
