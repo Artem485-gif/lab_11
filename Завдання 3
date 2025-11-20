@@ -1,0 +1,80 @@
+import nltk
+from nltk.probability import FreqDist
+from nltk.corpus import stopwords
+import string
+import matplotlib.pyplot as plt
+
+nltk.download('stopwords')
+
+#Завантаження книги
+file_id = r"C:\Users\Admin\PycharmProjects\PythonProject\austen-emma.txt"
+
+with open(file_id, "r", encoding="utf-8") as f:
+    text = f.read().lower()
+
+words = []
+for w in text.split():
+    clean = "".join(ch for ch in w if ch.isalpha())
+    if clean:
+        words.append(clean)
+
+#Визначення кількості слів у книгі
+total_words = len(words)
+print(f"Назва книги: austen-emma.txt")
+print(f"Кількість слів у книзі: {total_words}")
+
+# 10 найбільш вживаних слів
+fdist_raw = FreqDist(words)
+top10_raw = fdist_raw.most_common(10)
+print("\n10 найбільш вживаних слів:")
+print(top10_raw)
+
+#Виведення діаграми
+plt.figure(figsize=(10, 5))
+labels = [w for w, c in top10_raw]
+counts = [c for w, c in top10_raw]
+
+plt.bar(labels, counts)
+plt.title("10 найбільш вживаних слів")
+plt.xlabel("Найбільш вживаніші слова")
+plt.ylabel("Частота")
+
+# підписи над стовпцями
+for i, count in enumerate(counts):
+    plt.text(i, count + max(counts)*0.02, str(count), ha='center')
+
+plt.show()
+
+#Видалення з тексу стоп-слів та пунктуації
+stop_words = set(stopwords.words('english'))
+punctuation = set(string.punctuation)
+
+# Фільтрація
+clean_words = [
+    w.lower() for w in words
+    if w.lower() not in stop_words
+    and w not in punctuation
+]
+
+print(f"\nКількість слів після видалення: {len(clean_words)}")
+
+# 10 найбільш вживаних слів
+fdist_clean = FreqDist(clean_words)
+top10_clean = fdist_clean.most_common(10)
+print("\n10 найбільш вживаних слів після видалення:")
+print(top10_clean)
+
+#Виведення діаграми
+plt.figure(figsize=(10, 5))
+labels = [w for w, c in top10_clean]
+counts = [c for w, c in top10_clean]
+
+plt.bar(labels, counts)
+plt.title("10 найбільш вживаних слів після видалення")
+plt.xlabel("Найбільш вживаніші слова")
+plt.ylabel("Частота")
+
+for i, count in enumerate(counts):
+    plt.text(i, count + max(counts) * 0.02, str(count), ha='center')
+
+plt.show()
